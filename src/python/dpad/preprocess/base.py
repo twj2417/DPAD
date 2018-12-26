@@ -11,11 +11,11 @@ class Carriage_data:
 
     @property
     def num_frame(self):
-        return self.data[self.data_shape,1]
+        return self.data[self.data_shape-1,1]
 
     @property
     def carriage_id(self):
-        return self.data[self.data_shape,2]
+        return self.data[self.data_shape-1,2]
 
     def extract_effective_data(self):
         return self.data[:self.num_frame,:]

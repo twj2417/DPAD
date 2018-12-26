@@ -84,7 +84,7 @@ class Module_data:
     def update_module_id(self,new_moduleid):
         return Module_data(new_moduleid,self.data)
 
-    def update_crystal_id(self,relation_crystalid:numpy):
+    def update_crystal_id(self,relation_crystalid):
         new_data = np.array(self.reshaped_data)
         crystal_id = self.channel_id
         for i in range(crystal_id.size):
@@ -96,15 +96,17 @@ class Module_data:
         check_bit = self.data[:,3]
         d_value = check_bit[1:]+check_bit[:check_bit.size-1]
         index1 = np.where(d_value==284)[0]
-        np.delete(effective_data,index1)
-        index2 = np.where(d_value==286)[0]
-        effective_data = np.delete(effective_data,index2+1)
+        index2 = np.where(d_value==286)[0]+1
+        index = np.hstack((index1,index2))
+        effective_data = np.delete(self.data,index,0)
+        if check_bit[0]==143:
+            effective_data = effective_data[1:,:]
         return Module_data(self.module_id,effective_data)
 
     
         
-def add_data_from_carriage(module_data:Module_data,data:Carriage_data):
-    added_data = np.vstack(module_data.data,data.extract_effective_data())
-    return Module_data(module_data.module_id,added_data)
+# def add_data_from_carriage(module_data:Module_data,data:Carriage_data):
+#     added_data = np.vstack(module_data.data,data.extract_effective_data())
+#     return Module_data(module_data.module_id,added_data)
 
 
