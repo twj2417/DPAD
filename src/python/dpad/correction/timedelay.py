@@ -8,7 +8,6 @@ from ..data import Single_event
 
 def timedelay(event:Single_event,T,num_module,block_grid)->Single_event:
     data = np.hstack((np.hstack((event.crystalid,event.energy)),np.hstack((event.time,event.blockid))))
-    # start,interval,new_data = preprocessing(data,num_module,T)
     new_data = cut(data,150,800)
     time = np.zeros((num_module,1))
     time[1] = interval(new_data,0,T)
