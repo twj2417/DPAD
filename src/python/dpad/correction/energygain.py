@@ -6,7 +6,7 @@ import h5py
 from .actual2theory import Module_data
 
 def energygain(event:Module_data,num_channel):
-    for channel_id in range(1,num_channel+1):
+    for channel_id in range(num_channel):
         corrected_energy_data = np.zeros_like(event.energy)
         index = find_channel(event.channel_id,channel_id)
         energy_data = event.energy[index]

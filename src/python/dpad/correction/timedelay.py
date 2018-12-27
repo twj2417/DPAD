@@ -4,16 +4,17 @@ from scipy.fftpack import fft,ifft
 import numpy as np
 import os
 import h5py
-from ..data import Single_event
+from .actual2theory import Single_event
 
 def timedelay(event:Single_event,T,num_module,block_grid)->Single_event:
-    data = np.hstack((np.hstack((event.crystalid,event.energy)),np.hstack((event.time,event.blockid))))
+    data = np.hstack((np.hstack((event.crystalid.reshape(-1,1),event.energy.reshape(-1,1))),
+                        np.hstack((event.time.reshape(-1,1),event.blockid.reshape(-1,1)))))
     new_data = cut(data,150,800)
     time = np.zeros((num_module,1))
-    time[1] = interval(new_data,0,T)
-        for j in range(1,num_module):
-            drop = interval(new_data,j,block_grid,T)
-            time[j+1] =time[j]+drop
+    time[1] = interval(new_data,0,block_grid,T)
+    for j in range(1,num_module-1):
+        drop = interval(new_data,j,block_grid,T)
+        time[j+1] =time[j]+drop
     return time
 
 def left_edge(data,up):
