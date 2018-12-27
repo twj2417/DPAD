@@ -4,7 +4,7 @@ from .actual2theroy import Module_data,Single_event
 from ..auxiliary import hadd_by_row
 
 
-def module_correction(data:List[Module_data],num_module,relation_moduleid,relation_crystalid)->Single_event:
+def module_correction(data:Module_data,num_module,relation_moduleid,relation_crystalid)->Single_event:
     corrected_energy_data = []
     for module_id in range(num_module):
         energy_data = np.hstack(((energygain(data[module_id].extract_effective_data()
