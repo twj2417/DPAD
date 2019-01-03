@@ -1,7 +1,0 @@
-README.md
-src/python/dpad.egg-info/PKG-INFO
-src/python/dpad.egg-info/SOURCES.txt
-src/python/dpad.egg-info/dependency_links.txt
-src/python/dpad.egg-info/not-zip-safe
-src/python/dpad.egg-info/requires.txt
-src/python/dpad.egg-info/top_level.txt
