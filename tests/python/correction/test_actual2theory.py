@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 from doufo.tensor.tensor import all_close
 
-class Test_Single_event(unittest.TestCase):
+class Test_single_event(unittest.TestCase):
     def setUp(self):
         time = np.array([10422958,10423383,10423758,10424489,10426423,10427495,10427465,
                         10429860,6878008,6882499,6882499,8082068,8084519,8084519,
@@ -97,7 +97,7 @@ class Test_module_data(unittest.TestCase):
 
     def test_update_crystalid(self):
         relation = np.arange(1,101)
-        result = np.array([35,21,24,11,14,78,92,67])
+        result = 100-np.array([35,21,24,11,14,78,92,67])
         assert all_close(self.data.update_crystal_id(relation).channel_id,result)
 
     def test_effective_data(self):

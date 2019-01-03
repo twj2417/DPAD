@@ -1,9 +1,9 @@
-from ..correction.actual2theroy import Single
+#from ..correction.actual2theroy import Single
 from srf.data import PETCylindricalScanner
 import numpy as np
 
 class Coincidence_events:
-    def __init__(self,time,block1,crystal1,energy1=None,block2,crystal2,energy2=None):
+    def __init__(self,time,block1,block2,crystal1,crystal2,energy1=None,energy2=None):
         self.time = time
         self.block1 = block1
         self.crystal1 = crystal1
@@ -19,10 +19,10 @@ class Coincidence_events:
         crystal1 = self.crystal1[index]
         block2 = self.block2[index]
         crystal2 = self.crystal2[index]
-        return Coincidence_events(self.time,block1,crystal1,block2,crystal2)
+        return Coincidence_events(self.time,block1,block2,crystal1,crystal2)
 
     def get_coordinate(self,scanner:PETCylindricalScanner):
-        crystal_size = scanner.blocks[0].size/scanner.blocks[0].grid
+        crystal_size = np.array(scanner.blocks[0].size)/np.array(scanner.blocks[0].grid)
         radius = (scanner.inner_radius+scanner.outer_radius)/2
         block_angle1 = self.block1/scanner.nb_blocks_per_ring*2*np.pi
         block_angle2 = self.block2/scanner.nb_blocks_per_ring*2*np.pi

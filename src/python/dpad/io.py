@@ -1,9 +1,10 @@
 import numpy as np
 from jfs.api import Path
 import os
+from numpy import unicode
 
 def is_file_normal(path):
-    path = unicode(path,'utf8')
+    # path = unicode(path,'utf8')
     fsize = os.path.getsize(path)
     if fsize/float(1024)>10:
         return True
