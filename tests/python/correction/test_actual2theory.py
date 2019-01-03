@@ -97,7 +97,7 @@ class Test_module_data(unittest.TestCase):
 
     def test_update_crystalid(self):
         relation = np.arange(1,101)
-        result = np.array([35,21,24,11,14,78,92,67])
+        result = 100-np.array([35,21,24,11,14,78,92,67])
         assert all_close(self.data.update_crystal_id(relation).channel_id,result)
 
     def test_effective_data(self):

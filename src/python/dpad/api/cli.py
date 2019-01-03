@@ -1,12 +1,12 @@
 import click
 import json
-import .api import DPAD,Config
+from .api import DPAD,Config
 from dxl.core.debug import enter_debug
 from srf.external.stir.function import get_scanner
 
 enter_debug()
 
-@click.group()
+@click.command()
 @click.option('--config','-c',type=click.Path(exists=True))
 def dpad(config):
     with open(config, 'r') as fin:

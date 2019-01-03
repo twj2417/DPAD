@@ -20,4 +20,8 @@ setup(name='dpad',
           'pathlib',
           'numpy',
       ],
+      entry_points="""
+		[console_scripts]
+		dpad=dpad.api.cli:dpad
+      """,
       zip_safe=False)
