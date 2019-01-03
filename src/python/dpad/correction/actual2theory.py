@@ -29,7 +29,7 @@ class Single_event:
             smoothed_time[nb_module] = smoothed_module_time
             start.append(smoothed_module_time[0])
         start_shift = np.array(start)-start[0] 
-        return update_time(shift_start_time(smoothed_time,self.blockid,start_shift,const))
+        return self.update_time(shift_start_time(smoothed_time,self.blockid,start_shift,const))
 
 def get_smooth_time(data,const):
     comparison_data = data+const/10
@@ -71,7 +71,7 @@ class Module_data:
 
     @property
     def channel_id(self):
-        return self.reshaped_data[:,2]
+        return self.reshaped_data[:,2].astype(np.int64)
 
     @property
     def num_events(self):
@@ -87,8 +87,10 @@ class Module_data:
     def update_crystal_id(self,relation_crystalid):
         new_data = np.array(self.reshaped_data)
         crystal_id = self.channel_id
-        for i in range(crystal_id.size):
-            crystal_id[i] = relation_crystalid[crystal_id[i]]
+        # for i in range(crystal_id.size):
+        crystal_id = relation_crystalid[crystal_id]
+        if self.module_id%2==0:
+            crystal_id = relation_crystalid.size-crystal_id
         new_data[:,2] = crystal_id
         return Module_data(self.module_id,new_data.reshape(-1,4))
 
