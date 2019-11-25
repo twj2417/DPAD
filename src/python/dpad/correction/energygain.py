@@ -5,14 +5,18 @@ import os
 import h5py
 from .actual2theory import Module_data
 
-def energygain(event:Module_data):
+def energygain(event:Module_data,energy_peak=None):
     corrected_energy_data = np.zeros_like(event.energy)
     energy_data = event.energy
-    x,hist = histogram(energy_data,2049,(0,2049))
-    popt,pcov = curve_fit(gaussian,x,hist,p0=[3,511,5,6,511,2,3,511,5,6,511,8],maxfev=5000000)
-    peak = max(popt[1],popt[4],popt[7],popt[10])
+    if energy_peak is not None:
+        peak = energy_peak
+    else:
+        max_eng = int(np.max(energy_data))+1
+        x,hist = histogram(energy_data,max_eng,(0,max_eng))
+        index = np.argmax(hist[np.where((x>350)&(x<1000))[0]])
+        peak = index+350
     corrected_energy_data = gain(energy_data,peak)
-    return np.hstack((np.hstack((event.time.reshape(-1,1),corrected_energy_data.reshape(-1,1))),event.channel_id.reshape(-1,1)))
+    return np.hstack((np.hstack((event.time.reshape(-1,1),corrected_energy_data.reshape(-1,1))),event.channel_id.reshape(-1,1))),peak
 
 # def energygain(event:Module_data,num_channel):
 #     for channel_id in range(num_channel):

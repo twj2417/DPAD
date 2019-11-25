@@ -1,5 +1,5 @@
 import numpy as np
-from jfs.api import Path
+# from jfs.api import Path
 import os
 from numpy import unicode
 

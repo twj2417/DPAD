@@ -1,13 +1,12 @@
 from .base import Carriage_data
 from ..correction.actual2theory import Module_data
 from ..auxiliary import hadd_by_row
-from doufo import List
 import numpy as np
-import rx
 
 def get_effective_data(data,num_module):
     true_data = data[4000:].reshape(-1,4)
     complete_data = _rm_loss_data(true_data)
+    complete_data = complete_data[272*99:,:]
     return _split_data_into_module(complete_data,num_module)
 
 
@@ -28,6 +27,13 @@ def _rm_loss_data(data):
 
 
 def _split_data_into_module(data,num_module):
+    index = np.where(data[::17,3]==143)[0]
+    data[index*17,3] =128
+    index1 = np.arange(0,data.shape[0],17,dtype=np.int64)
+    index2 = (index1+(data[index1+16,1]).astype(np.int64)-1)[1:]
+    index3 = np.where(data[index2,3]==142)[0]
+    index4 = index2[index3]
+    data[index4,3] = 128
     line_end = np.where((data[:,0]==0)&(data[:,3]==240))[0]
     id_module = data[line_end,2]
     id_modules = np.tile(id_module.reshape(-1,1),(1,17)).reshape(-1,1)
