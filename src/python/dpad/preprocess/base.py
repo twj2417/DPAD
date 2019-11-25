@@ -1,4 +1,4 @@
-from doufo import dataclass,List
+# from doufo import dataclass,List
 
 
 class Carriage_data:

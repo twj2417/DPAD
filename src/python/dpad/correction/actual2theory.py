@@ -20,30 +20,35 @@ class Single_event:
     def update_energy(self,energy):
         return Single_event(self.time,energy,self.blockid,self.crystalid)
 
+    def filter_energy(self,energy_window):
+        index = np.where((self.energy>energy_window[0])&(self.energy<energy_window[1]))[0]
+        return Single_event(self.time[index],self.energy[index],self.blockid[index],self.crystalid[index])
+
     def smooth_event_time(self,num_module,const):
         smoothed_time = self.time
-        start = []
+        # start = []
         for module_id in range(num_module):
             nb_module = np.where(self.blockid==module_id)[0]
             smoothed_module_time = get_smooth_time(self.time[nb_module],const)
             smoothed_time[nb_module] = smoothed_module_time
-            start.append(smoothed_module_time[0])
-        start_shift = np.array(start)-start[0] 
-        return self.update_time(shift_start_time(smoothed_time,self.blockid,start_shift,const))
+            # start.append(smoothed_module_time[0])
+        # start_shift = np.array(start)-start[0] 
+        return self.update_time(smoothed_time)
 
 def get_smooth_time(data,const):
-    comparison_data = data+const/10
+    result = np.array(data)
+    comparison_data = data+const/2
     offset = 0
     for i in range(1,data.size):
         if comparison_data[i]<data[i-1]:
             offset = offset+const
         if comparison_data[i-1]<data[i]:
             offset = offset-const
-        data[i] = data[i]+offset
-    return data
+        result[i] = data[i]+offset
+    return result
 
 def shift_start_time(time,block,shift,const):
-    abnormal_block = np.where(np.abs(shift)>const/10)[0]
+    abnormal_block = np.where(np.abs(shift)>const/2)[0]
     for ab_block in abnormal_block:
         if shift[ab_block]<0:
             ab_index = np.where(block==ab_block)[0]
@@ -85,12 +90,13 @@ class Module_data:
         return Module_data(new_moduleid,self.data)
 
     def update_crystal_id(self,relation_crystalid):
-        new_data = np.array(self.reshaped_data)
+        reshape_data = np.array(self.reshaped_data)
         crystal_id = self.channel_id
-        # for i in range(crystal_id.size):
-        crystal_id = relation_crystalid[crystal_id]
+        index = np.where((crystal_id>-1)&(crystal_id<100))[0]
+        new_data = reshape_data[index,:]
+        crystal_id = relation_crystalid[new_data[:,2].astype(np.int64)]-1 
         if self.module_id%2==0:
-            crystal_id = relation_crystalid.size-crystal_id
+            crystal_id = relation_crystalid.size-crystal_id-1
         new_data[:,2] = crystal_id
         return Module_data(self.module_id,new_data.reshape(-1,4))
 

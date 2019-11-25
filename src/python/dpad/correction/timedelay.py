@@ -1,5 +1,5 @@
 import scipy.io as sio
-from jfs.api import File
+# from jfs.api import File
 from scipy.fftpack import fft,ifft
 import numpy as np
 import os
@@ -10,17 +10,17 @@ def timedelay(event:Single_event,T,num_module,block_grid)->Single_event:
     data = np.hstack((np.hstack((event.crystalid.reshape(-1,1),event.energy.reshape(-1,1))),
                         np.hstack((event.time.reshape(-1,1),event.blockid.reshape(-1,1)))))
     new_data = cut(data,150,800)
-    time = np.zeros((num_module,1))
+    time = np.zeros((num_module+1,1))
     time[1] = interval(new_data,0,block_grid,T)
-    for j in range(1,num_module-1):
+    for j in range(1,num_module):
         drop = interval(new_data,j,block_grid,T)
         time[j+1] =time[j]+drop
     return time
 
 def left_edge(data,up):
-    return data[np.where(data[:,0]<=up),2]
+    return data[np.where(data[:,0]<up),2]
 def right_edge(data,low):
-    return data[np.where(data[:,0]>low),2]
+    return data[np.where(data[:,0]>=low),2]
 def cut(data,low_energy,high_energy):
     index = np.where(data[:,1]>low_energy)
     temp = data[index[0],]
@@ -55,7 +55,7 @@ def get_time_data(new_data,block_id,block_grid):
     up = block_grid[1]
     low = block_grid[1]*block_grid[2]-block_grid[1]
     return {block_id:np.array(right_edge(new_data[np.where(new_data[:,3]==block_id)],low)[0],dtype=np.int64), 
-            block_id+1:np.array(left_edge(new_data[np.where(new_data[:,3]==(block_id+1))],up)[0],dtype=np.int64)} 
+            block_id+1:np.array(left_edge(new_data[np.where(new_data[:,3]==((block_id+1)%16))],up)[0],dtype=np.int64)} 
 
 def one_hot(xs, period):
     xs = np.array(xs, dtype=np.int64) % period

@@ -2,14 +2,16 @@ from ..io import load_data,is_file_normal
 from ..preprocess.process import get_effective_data
 from ..correction.process import module_correction,single_correction
 from ..coincidence.process import coincidence_with_time_window
-from srf.io.listmode import save_h5
 from ..auxiliary import hadd_by_row
-from doufo import dataclass
-from jfs.api import File
+from srfnef import nef_class
+# from jfs.api import File
+import fs
+import pathlib
 import numpy as np
 import time
+import srfnef as nef
 
-@dataclass
+@nef_class
 class Config:
     num_file:int
     input_path:str
@@ -34,23 +36,31 @@ class DPAD():
         self.task = self._make_task(task_config,scanner)
 
     def _make_task(self,config,scanner):
-        coordinate = []
-        t1 = time.time()
-        for i in range(config.num_file):
+        if pathlib.Path('./energy_peak.npy').exists():
+            energy_peak = np.load('./energy_peak.npy')
+        else:
+            energy_peak = None
+        if pathlib.Path('./delay_time.npy').exists():
+            # delay_time = None
+            delay_time = np.load('./delay_time.npy')
+        else:
+            delay_time = None
+        for i in range(config.num_file):           
             print(i)
+            t1 = time.time()
             file_name = config.input_path+str(i)+'.dat'
-            if File(file_name).exists and is_file_normal(file_name):
-                input_data = np.array(load_data(file_name))
+            if pathlib.Path(file_name).exists() and pathlib.Path(file_name).is_file() and is_file_normal(file_name):
+                coordinate = []
+                input_data = np.fromfile(file_name,dtype = np.dtype('u1'))
                 module_data = get_effective_data(input_data,scanner.nb_blocks_per_ring)
-                corrected_module_data = module_correction(module_data,scanner.nb_blocks_per_ring,np.load(config.relation_moduleid),np.load(config.relation_crystalid))
-                corrected_single_data = single_correction(corrected_module_data,scanner.nb_blocks_per_ring,config.time_period,config.search_range,scanner.blocks[0].grid)
-                coincidence_data = coincidence_with_time_window(corrected_single_data,config.time_window)
-                coordinate.append(coincidence_data.filter_with_energy_window(config.energy_window).get_coordinate(scanner))
-        coordinate = hadd_by_row(coordinate)
-        t2 = time.time()
-        print(t2-t1)
-        output = {'fst':coordinate[:,:3],'snd':coordinate[:,3:6],
-                  'weight':np.ones_like(coordinate[:,0]),
-                  'tof':np.ones_like(coordinate[:,0])}
-        save_h5(config.output_path,output)
+                corrected_module_data,energy_peak = module_correction(module_data,scanner.nb_blocks_per_ring,np.load(config.relation_moduleid),np.load(config.relation_crystalid),energy_peak)
+                np.save('./energy_peak.npy',energy_peak)
+                corrected_single_data,delay_time = single_correction(corrected_module_data,scanner.nb_blocks_per_ring,config.time_period,config.search_range,scanner.blocks.shape,delay_time)
+                np.save(f'./delay_time.npy',delay_time)
+                coincidence_data = coincidence_with_time_window(corrected_single_data,config.time_window,config.energy_window)
+                coordinate.append(coincidence_data.get_coordinate(scanner))
+                coordinate = hadd_by_row(coordinate)
+                t2 = time.time()
+                print(t2-t1)
+                np.save(config.output_path+f'_{i}',coordinate)
                         
